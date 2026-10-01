@@ -694,6 +694,17 @@ if (!customElements.get('image-slot')) {
       return { el:el, video:el.querySelector('video'), poster:el.querySelector('.ms-poster'), awake:false, started:false };
     });
 
+    /* ---- the poster sits in the same stacking position as the video and was
+       never being hidden once playback actually starts, so it permanently
+       masked a video that was correctly playing underneath it. Fade it out
+       the first time this video genuinely starts producing frames. ---- */
+    meta.forEach(function(m){
+      if(!m.video || !m.poster) return;
+      m.video.addEventListener('playing', function(){
+        m.poster.style.opacity='0';
+      }, {once:true});
+    });
+
     /* ---- defensive fallback: some browsers/extensions block the programmatic
        play() call below even for a muted video (strict autoplay settings). The
        very first real user gesture anywhere on the page — scroll, tap, key —
